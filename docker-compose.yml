@@ -69,6 +69,8 @@ services:
     environment:
       - SE_DYNAMIC_GRID_ENABLED=true
       - SE_NODE_GRID_URL=http://selenium-hub:4444
+      - SE_DRAIN_AFTER_SESSION_COUNT=1
+      - SE_NODE_SESSION_TIMEOUT=300
       - SE_DOCKER_NETWORK_NAME=teststate
       - SE_DOCKER_NODE_SHM_SIZE=2gb
       - SE_ASSETS_PATH=/opt/selenium/assets
