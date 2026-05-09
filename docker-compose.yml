@@ -85,6 +85,4 @@ networks:
 
 volumes:
   cms_data:
-    name: testgenesis_cms_data
   selenium_assets:
-    name: testgenesis_selenium_assets
