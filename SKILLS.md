@@ -18,7 +18,29 @@ A **Quarkus** application that serves as the central brain.
 Specialized workers that connect to the Hub to execute tasks:
 - **`teststate-client-node`**: Core TypeScript SDK for building Node.js agents.
 - **`side-agent`**: Executes Selenium-IDE (`.side`) projects.
-- **`puppeteer-replay-agent`**: Runs Chrome DevTools Recorder JSON exports and provides Puppeteer-to-Selenium translation services.
+- **`puppeteer-replay-agent`**: Runs Chrome DevTools Recorder JSON exports.
+- **`teststate-ai-translation-agent`**: A sophisticated AI-powered agent that translates manual test scripts into Selenium (.side) or Puppeteer Replay JSON using a strategy-based interaction loop.
+
+---
+
+## AI Agent Design Patterns
+
+All AI-driven agents in TestState must adhere to these deterministic execution patterns:
+
+### 1. Interaction Log as Ground Truth
+AI agents are forbidden from "hallucinating" results. Every action must be recorded via a tool call into a `BrowserInteractionLog`. The final output script must be a direct assembly of these recorded steps.
+
+### 2. Strategy-Based Tooling
+Interaction logic is decoupled into format-specific strategies (e.g., `SeleniumBrowserTools`, `PuppeteerBrowserTools`). 
+- **Direct Copy**: Tool outputs must be exact JSON objects ready for final assembly.
+- **Multi-Selector Support**: Tools should accept and log multiple selector variants (ARIA, ID, CSS) to improve script resilience.
+
+### 3. Proactive Synchronization (SYNC > PAUSE)
+AI agents must prioritize dynamic state verification (`waitForElementVisible`) over fixed sleeps (`pause`). 
+- **Grace Periods**: Transition-heavy formats (like Puppeteer) automatically handle page delays by interleaving short grace periods before verification steps.
+
+### 4. Continuous Planning
+Agents must maintain a living `BrowserExecutionPlan` and update it at least once every 3 turns to synchronize the roadmap with the live application state.
 
 ---
 
@@ -141,3 +163,10 @@ Instead of fat JARs (Shading), we use a classpath-based model:
 - **Central CMS Hub**: The main endpoint for all agents (`http://cms:9000`).
 - **Selenium Grid**: Integrated Hub and Chrome nodes for cross-agent browser automation.
 - **Persistent Storage**: Uses Docker volumes for CMS data persistence.
+
+### 5. Submodule Management & Deployment Bundling
+TestState uses a **Multi-Repo Submodule** architecture. This requires specific care during deployment:
+- **Recursive Cloning**: Always use `git clone --recursive` or `git submodule update --init --recursive` to ensure all agent code is available.
+- **Context Bundling**: Docker builds for submodules are often triggered from the root. Ensure that the submodule directory is correctly mapped in the `Dockerfile` and that the `.dockerignore` doesn't inadvertently exclude submodule source code.
+- **Recipe-Driven Builds**: Use the root `justfile` recipes (e.g., `just build-ai-translation-agent`) to handle the cross-repo dependencies and ensure all artifacts are built in the correct order before containerization.
+- **Version Pinning**: Submodule pointers in the `stack` (root) repository serve as the deployment manifest. Commits in submodules must be pushed and the root pointer updated to deploy new changes.
