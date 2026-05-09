@@ -60,7 +60,13 @@ build-client name:
         if [ "{{name}}" != "client-node" ]; then \
             just build-node-client; \
         fi; \
-        cd {{client_root}}/{{name}} && npm install && npm run build; \
+        cd {{client_root}}/{{name}} && { \
+            npm install; \
+            if [ "{{name}}" != "client-node" ]; then \
+                npm install ../client-node --no-save; \
+            fi; \
+            npm run build; \
+        }; \
     elif [ -f "{{client_root}}/{{name}}/pom.xml" ]; then \
         just build-java-client; \
         mvn -f {{client_root}}/{{name}}/pom.xml clean compile -Dspecification.dir="{{spec}}"; \
