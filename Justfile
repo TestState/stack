@@ -120,6 +120,19 @@ clean:
     rm -rf {{node_client}}/{dist,node_modules,src/generated}
     rm -rf .docker/
 
+# Update all submodules to their latest remote versions and commit
+update-submodules:
+    @echo "[Just] Updating all submodules..."
+    git submodule update --remote --merge
+    @if [ -n "$(git status --porcelain implementation/ specification/)" ]; then \
+        echo "[Just] Committing submodule updates..."; \
+        git add implementation/ specification/; \
+        git commit -m "chore: update all submodules to latest remote versions"; \
+        echo "[Just] Successfully updated and committed submodules."; \
+    else \
+        echo "[Just] All submodules are already up to date."; \
+    fi
+
 # --- Deployment Configuration ---
 
 VPS_FILE := ".vps"
