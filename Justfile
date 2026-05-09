@@ -11,7 +11,7 @@ client_root  := "implementation/client"
 spec         := justfile_directory() + "/specification"
 
 # Discovery: List all agent directories (excludes SDKs and CLI)
-clients := `ls implementation/client | grep -vE "^client-|^cli|^java-verification-agent|final-agent" | tr '\n' ' '`
+clients := `find implementation/client -maxdepth 1 -type d | sed 's|implementation/client/||' | grep -vE "^implementation/client$|^client-|^cli" | tr '\n' ' '`
 
 # Default Build
 all: refresh-agents build-cms build-sdk build-all-clients
