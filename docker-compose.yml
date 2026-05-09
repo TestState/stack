@@ -7,7 +7,7 @@ services:
       - "8080:8080" # UI & REST API
       - "9000:9000" # gRPC Agent Hub
     environment:
-      - QUARKUS_DATASOURCE_JDBC_URL=jdbc:h2:file:/app/data/teststate;DB_CLOSE_DELAY=-1
+      - QUARKUS_DATASOURCE_JDBC_URL=jdbc:h2:file:/app/data/testgenesis;DB_CLOSE_DELAY=-1
     volumes:
       - cms_data:/app/data
     networks:
