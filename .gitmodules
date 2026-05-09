@@ -10,9 +10,6 @@
 [submodule "implementation/client/puppeteer-replay-agent"]
 	path = implementation/client/puppeteer-replay-agent
 	url = git@github.com:TestState/puppeteer-replay-agent.git
-[submodule "implementation/client/selenium-junit-agent"]
-	path = implementation/client/selenium-junit-agent
-	url = git@github.com:TestState/selenium-junit-agent.git
 [submodule "specification"]
 	path = specification
 	url = git@github.com:TestState/specification.git
