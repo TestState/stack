@@ -44,3 +44,6 @@ skills-lock.json
 # TestState Bundles
 teststate-v*.zip
 testgenesis-v*.zip
+
+# Temporary files
+.bundle_files
