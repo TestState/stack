@@ -4,38 +4,43 @@
 **/dist/
 **/build/
 **/out/
+**/src/generated/
+.docker/
 
 # IDE & Configs
 .idea/
 .vscode/
-.docker/
-.env
-.vps
-pass_file.txt
-host_file.txt
-*.secret
 *.iml
 *.iws
 *.ipr
-.agents/
-skills-lock.json
 
-# Documentation
-documentation/
+# Secrets & Environment
+.env
+.env.*
+!.env.example
+.vps
+*.secret
+pass_file.txt
+host_file.txt
+
+# System Files
+.DS_Store
+Thumbs.db
+desktop.ini
 
 # Logs & Temp
 *.log
 tmp/
-.DS_Store
 
-# OS specific
-Thumbs.db
-desktop.ini
-
-# Maven
+# Maven Wrapper
 .mvn/
 mvnw
 mvnw.cmd
 
-# TestGenesis Bundles
+# Agent Tooling
+.agents/
+skills-lock.json
+
+# TestState Bundles
+teststate-v*.zip
 testgenesis-v*.zip
