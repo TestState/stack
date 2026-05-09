@@ -148,7 +148,10 @@ bundle:
     OUTPUT_FILE="teststate-v${VERSION}.zip"
     echo "[Bundle] Creating v${VERSION} into ${OUTPUT_FILE}..."
     rm -f teststate-v*.zip
-    git ls-files --cached --others --exclude-standard | zip "$OUTPUT_FILE" -@
+    git ls-files --cached --others --exclude-standard > .bundle_files
+    git submodule foreach --recursive --quiet 'git ls-files --cached --others --exclude-standard | sed "s|^|$sm_path/|"' >> .bundle_files
+    zip -q "$OUTPUT_FILE" -@ < .bundle_files
+    rm .bundle_files
     echo "[Bundle] Done! Created ${OUTPUT_FILE}"
 
 # Deploy to a VPS via SSH (Sync & Build)
