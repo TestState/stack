@@ -1,30 +1,40 @@
 [submodule "implementation/client/ai-translation-agent"]
 	path = implementation/client/ai-translation-agent
 	url = git@github.com:TestState/ai-translation-agent.git
+	branch = main
 [submodule "implementation/client/junit-agent"]
 	path = implementation/client/junit-agent
 	url = git@github.com:TestState/junit-agent.git
+	branch = main
 [submodule "implementation/client/manual-java-agent"]
 	path = implementation/client/manual-java-agent
 	url = git@github.com:TestState/manual-java-agent.git
+	branch = main
 [submodule "implementation/client/puppeteer-replay-agent"]
 	path = implementation/client/puppeteer-replay-agent
 	url = git@github.com:TestState/puppeteer-replay-agent.git
+	branch = main
 [submodule "specification"]
 	path = specification
 	url = git@github.com:TestState/specification.git
+	branch = main
 [submodule "implementation/client/side-agent"]
 	path = implementation/client/side-agent
 	url = git@github.com:TestState/side-agent.git
+	branch = main
 [submodule "implementation/server/teststate-cms"]
 	path = implementation/server/teststate-cms
 	url = git@github.com:TestState/server.git
+	branch = main
 [submodule "implementation/client/client-java"]
 	path = implementation/client/client-java
 	url = git@github.com:TestState/client-java.git
+	branch = main
 [submodule "implementation/client/client-node"]
 	path = implementation/client/client-node
 	url = git@github.com:TestState/client-node.git
+	branch = main
 [submodule "implementation/client/cli"]
 	path = implementation/client/cli
 	url = git@github.com:TestState/cli.git
+	branch = main
