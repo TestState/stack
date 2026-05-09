@@ -1,0 +1,86 @@
+services:
+  cms:
+    build:
+      context: .
+      dockerfile: implementation/server/teststate-cms/Dockerfile
+    ports:
+      - "8080:8080" # UI & REST API
+      - "9000:9000" # gRPC Agent Hub
+    environment:
+      - QUARKUS_DATASOURCE_JDBC_URL=jdbc:h2:file:/app/data/teststate;DB_CLOSE_DELAY=-1
+    volumes:
+      - cms_data:/app/data
+    networks:
+      - teststate
+
+  side-agent:
+    build:
+      context: .
+      dockerfile: implementation/client/side-agent/Dockerfile
+    environment:
+      - HUB_URL=http://cms:9000
+      - CLIENT_NAME=SideAgent-Docker
+      - SELENIUM_REMOTE_URL=http://selenium-hub:4444/wd/hub
+    depends_on:
+      - cms
+      - selenium-hub
+    networks:
+      - teststate
+
+  puppeteer-agent:
+    build:
+      context: .
+      dockerfile: implementation/client/puppeteer-replay-agent/Dockerfile
+    environment:
+      - HUB_URL=http://cms:9000
+      - CLIENT_NAME=PuppeteerAgent-Docker
+    shm_size: 2gb
+    cap_add:
+      - SYS_ADMIN
+    depends_on:
+      - cms
+    networks:
+      - teststate
+
+  junit-agent:
+    build:
+      context: .
+      dockerfile: implementation/client/junit-agent/Dockerfile
+    environment:
+      - HUB_URL=http://cms:9000
+      - CLIENT_NAME=JUnitAgent-Docker
+      - JUNIT_DEPENDENCIES=org.seleniumhq.selenium:selenium-java:4.43.0
+      - SELENIUM_REMOTE_URL=http://selenium-hub:4444/wd/hub
+    depends_on:
+      - cms
+      - selenium-hub
+    networks:
+      - teststate
+
+  # Selenium Grid for SideAgent with Auto-Scaling (Dynamic Grid)
+  selenium-hub:
+    image: selenium/standalone-docker:latest
+    container_name: selenium-hub
+    ports:
+      - "4444:4444"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - selenium_assets:/opt/selenium/assets
+    environment:
+      - SE_DYNAMIC_GRID_ENABLED=true
+      - SE_NODE_GRID_URL=http://selenium-hub:4444
+      - SE_DOCKER_NETWORK_NAME=teststate
+      - SE_DOCKER_NODE_SHM_SIZE=2gb
+      - SE_ASSETS_PATH=/opt/selenium/assets
+      - SE_DOCKER_NODE_ASSETS_PATH=/opt/selenium/assets
+      - SE_NODES_CONFIG_JSON={"capabilities":[{"browserName":"chrome","maxInstances":5,"image":"selenium/node-chrome:latest"},{"browserName":"firefox","maxInstances":5,"image":"selenium/node-firefox:latest"}]}
+    networks:
+      - teststate
+
+networks:
+  teststate:
+    driver: bridge
+
+volumes:
+  cms_data:
+  selenium_assets:

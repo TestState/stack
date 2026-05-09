@@ -1,0 +1,33 @@
+[submodule "implementation/client/ai-translation-agent"]
+	path = implementation/client/ai-translation-agent
+	url = https://github.com/TestState/ai-translation-agent.git
+[submodule "implementation/client/junit-agent"]
+	path = implementation/client/junit-agent
+	url = https://github.com/TestState/junit-agent.git
+[submodule "implementation/client/manual-java-agent"]
+	path = implementation/client/manual-java-agent
+	url = https://github.com/TestState/manual-java-agent.git
+[submodule "implementation/client/puppeteer-replay-agent"]
+	path = implementation/client/puppeteer-replay-agent
+	url = https://github.com/TestState/puppeteer-replay-agent.git
+[submodule "implementation/client/selenium-junit-agent"]
+	path = implementation/client/selenium-junit-agent
+	url = https://github.com/TestState/selenium-junit-agent.git
+[submodule "specification"]
+	path = specification
+	url = https://github.com/TestState/specification.git
+[submodule "implementation/client/side-agent"]
+	path = implementation/client/side-agent
+	url = https://github.com/TestState/side-agent.git
+[submodule "implementation/server/teststate-cms"]
+	path = implementation/server/teststate-cms
+	url = https://github.com/TestState/server.git
+[submodule "implementation/client/client-java"]
+	path = implementation/client/client-java
+	url = https://github.com/TestState/client-java.git
+[submodule "implementation/client/client-node"]
+	path = implementation/client/client-node
+	url = https://github.com/TestState/client-node.git
+[submodule "implementation/client/cli"]
+	path = implementation/client/cli
+	url = https://github.com/TestState/cli.git
