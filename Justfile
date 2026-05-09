@@ -3,14 +3,15 @@ import? 'implementation/client/agents.just'
 set shell := ["bash", "-c"]
 
 # Project Roots
-node_client  := "implementation/client/teststate-client-node"
-java_client  := "implementation/client/teststate-client-java"
+node_client  := "implementation/client/client-node"
+java_client  := "implementation/client/client-java"
 cms          := "implementation/server/teststate-cms"
-gen_cli      := "implementation/client/teststate-cli"
+gen_cli      := "implementation/client/cli"
 client_root  := "implementation/client"
+spec         := justfile_directory() + "/specification"
 
 # Discovery: List all agent directories (excludes SDKs and CLI)
-clients := `ls implementation/client | grep -vE "^teststate-client-|teststate-cli|^java-verification-agent|final-agent" | tr '\n' ' '`
+clients := `ls implementation/client | grep -vE "^client-|^cli|^java-verification-agent|final-agent" | tr '\n' ' '`
 
 # Default Build
 all: refresh-agents build-cms build-sdk build-all-clients
@@ -27,6 +28,7 @@ force := "false"
 
 build-node-client:
     @if [ "$FORCE" = "true" ] || [ "{{force}}" = "true" ] || [ ! -d "{{node_client}}/dist" ]; then \
+        export SPECIFICATION_DIR="{{spec}}"; \
         cd {{node_client}} && npm install && npm run build; \
     else \
         echo "[Just] Node SDK already built, skipping..."; \
@@ -34,7 +36,7 @@ build-node-client:
 
 build-java-client:
     @if [ "$FORCE" = "true" ] || [ "{{force}}" = "true" ] || ! ls {{java_client}}/target/teststate-client-java-*.jar >/dev/null 2>&1; then \
-        mvn -f {{java_client}} clean install; \
+        mvn -f {{java_client}} clean install -Dspecification.dir="{{spec}}"; \
     else \
         echo "[Just] Java SDK already built, skipping..."; \
     fi
@@ -55,13 +57,13 @@ list-clients:
 build-client name:
     @echo "[Just] Building client: {{name}}"
     @if [ -f "{{client_root}}/{{name}}/package.json" ]; then \
-        if [ "{{name}}" != "teststate-client-node" ]; then \
+        if [ "{{name}}" != "client-node" ]; then \
             just build-node-client; \
         fi; \
         cd {{client_root}}/{{name}} && npm install && npm run build; \
     elif [ -f "{{client_root}}/{{name}}/pom.xml" ]; then \
         just build-java-client; \
-        mvn -f {{client_root}}/{{name}}/pom.xml clean compile; \
+        mvn -f {{client_root}}/{{name}}/pom.xml clean compile -Dspecification.dir="{{spec}}"; \
     else \
         echo "Error: Unsupported project type in {{name}}"; exit 1; \
     fi
@@ -96,12 +98,12 @@ install-playwright name:
 # Generate a new client project
 # Usage: just gen-client <name> [options]
 gen-client name *args: build-gen-cli
-    cd {{client_root}} && node teststate-cli/dist/index.js {{name}} {{args}}
+    cd {{client_root}} && node cli/dist/index.js {{name}} {{args}}
     just refresh-agents
 
 # Refresh dynamic agent recipes for tab completion
 refresh-agents: build-gen-cli
-    cd {{client_root}} && node teststate-cli/dist/index.js --refresh
+    cd {{client_root}} && node cli/dist/index.js --refresh
 
 # --- Utility ---
 
