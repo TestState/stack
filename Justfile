@@ -146,7 +146,6 @@ VPS_FILE := ".vps"
 # --- Deployment Recipes ---
 
 # Deploy to a VPS via SSH (Sync & Build)
-# Usage: just deploy [remote_path] [user@host]
 # Create a versioned deployment bundle (ZIP)
 bundle:
     #!/usr/bin/env bash
@@ -161,8 +160,8 @@ bundle:
     echo "[Bundle] Done! Created ${OUTPUT_FILE}"
 
 # Deploy to a VPS via SSH (Sync & Build)
-# Usage: just deploy [remote_path] [user@host]
-deploy path="~/TestState" host="":
+# Usage: just deploy [type=native|java] [remote_path] [user@host]
+deploy type="native" path="~/TestState" host="":
     #!/usr/bin/env bash
     VPS_FILE=".vps"
     REMOTE_PATH="{{path}}"
@@ -177,22 +176,25 @@ deploy path="~/TestState" host="":
         SSH_CMD="sshpass -e ssh"
         RSYNC_OPTS="$RSYNC_OPTS -e 'sshpass -e ssh'"
     fi
-
+ 
+    TARGET="native"
+    if [ "{{type}}" == "java" ]; then TARGET="jvm"; fi
+ 
     echo "[Deploy] Syncing files to $HOST:$REMOTE_PATH..."
     eval "rsync $RSYNC_OPTS --exclude-from='.dockerignore' ./ \"$HOST:$REMOTE_PATH\""
-    echo "[Deploy] Building and starting services on remote..."
-    $SSH_CMD "$HOST" "cd $REMOTE_PATH && docker compose up --build -d --remove-orphans"
+    echo "[Deploy] Building and starting services ({{type}}) on remote..."
+    $SSH_CMD "$HOST" "cd $REMOTE_PATH && CMS_TARGET=$TARGET docker compose up --build -d --remove-orphans"
 
 # Deploy via ZIP bundle (Upload -> Unzip -> Build)
-# Usage: just deploy-zip [remote_path] [user@host]
-deploy-zip path="~/TestState" host="": bundle
+# Usage: just deploy-zip [type=native|java] [remote_path] [user@host]
+deploy-zip type="native" path="~/TestState" host="": bundle
     #!/usr/bin/env bash
     VPS_FILE=".vps"
     REMOTE_PATH="{{path}}"
     HOST="{{host}}"
     if [ -z "$HOST" ] && [ -f "$VPS_FILE" ]; then HOST=$(head -n 1 "$VPS_FILE"); fi
     if [ -z "$HOST" ]; then HOST="host@ip"; fi
-
+ 
     SSH_CMD="ssh"
     SCP_CMD="scp"
     if [ -f "$VPS_FILE" ]; then
@@ -200,14 +202,17 @@ deploy-zip path="~/TestState" host="": bundle
         SSH_CMD="sshpass -e ssh"
         SCP_CMD="sshpass -e scp"
     fi
-
+ 
     BUNDLE=$(ls teststate-*.zip 2>/dev/null | sort -V | tail -n 1)
     if [ -z "$BUNDLE" ]; then echo "Error: No bundle found."; exit 1; fi
-
+ 
+    TARGET="native"
+    if [ "{{type}}" == "java" ]; then TARGET="jvm"; fi
+ 
     echo "[Deploy] Uploading bundle $BUNDLE to $HOST..."
     $SCP_CMD "$BUNDLE" "$HOST:$REMOTE_PATH.zip"
-    echo "[Deploy] Extracting and starting on remote..."
-    $SSH_CMD "$HOST" "mkdir -p $REMOTE_PATH && unzip -o $REMOTE_PATH.zip -d $REMOTE_PATH && cd $REMOTE_PATH && docker compose up --build -d --remove-orphans"
+    echo "[Deploy] Extracting and starting ({{type}}) on remote..."
+    $SSH_CMD "$HOST" "mkdir -p $REMOTE_PATH && unzip -o $REMOTE_PATH.zip -d $REMOTE_PATH && cd $REMOTE_PATH && CMS_TARGET=$TARGET docker compose up --build -d --remove-orphans"
 
 # Configure a remote Docker context (Alternative method)
 # Usage: just setup-remote-context <name> <ssh-url>

@@ -3,6 +3,8 @@ services:
     build:
       context: .
       dockerfile: implementation/server/teststate-cms/Dockerfile
+      # Use 'native' for the GraalVM binary or 'jvm' for the standard JAR.
+      target: ${CMS_TARGET:-native}
     ports:
       - "8080:8080" # UI & REST API
       - "9000:9000" # gRPC Agent Hub
