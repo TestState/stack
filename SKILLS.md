@@ -54,17 +54,28 @@ Agents must maintain a living `BrowserExecutionPlan` and update it at least once
 
 ## 2. Layout Patterns
 
-### Clearfix & Float Areas
-The primary method for headers and list items is a float-based layout using `.title-area` and `.action-area` wrapped in a `.clearfix`.
+### Header (Flexbox)
+The global header uses **Flexbox** for responsive alignment. The brand heading is pushed to the left and the navigation to the right using `justify-content: space-between`.
 ```html
-<section class="clearfix">
+<header>
+    <div class="container">
+        <h1>TestState</h1>
+        <nav>...</nav>
+    </div>
+</header>
+```
+
+### Clearfix & Float Areas
+For secondary sections and list items, use a float-based layout with `.title-area` and `.action-area` wrapped in a `.clearfix`.
+```html
+<li class="clearfix">
     <div class="title-area">
-        <h2>Dashboard</h2>
+        <strong>Item Name</strong>
     </div>
     <div class="action-area">
-        <a href="/new" class="btn btn-primary">New Item</a>
+        <span class="status">Active</span>
     </div>
-</section>
+</li>
 ```
 
 ### Statistical Boxes
@@ -97,19 +108,23 @@ Group related inputs using fieldsets for better accessibility and hierarchy.
 ```
 
 ### Display Modes
-- **Default**: Inline-block (good for table actions).
-- **Primary Forms**: Use `main > form` or `.full-width-form` to expand fieldsets to 100% width.
+- **Standard**: For small forms or inline usage.
+- **Editor Forms**: Use `.full-width-form` to expand the form and its fieldsets to 100% width.
 
 ## 4. Component Standards
 
 ### Status Badges
-Consistent, color-coded badges for real-time tracking:
+Consistent, color-coded badges for real-time tracking using `.status` or `.status-badge`:
 - `.status-completed`: Success/Green (`#3fb950`)
 - `.status-running`: Active/Blue (`#58a6ff`)
 - `.status-pending` / `.status-waiting`: Warning/Yellow (`#d29922`)
 - `.status-failed`: Error/Red (`#f85149`)
 
+### Recommendation Badges
+Dynamic badges used in editors to indicate payload requirements (`REQUIRED`, `RECOMMENDED`). These are typically placed in the `.action-area` of a list item.
+
 ### Buttons
+- **Normalization**: All `<a>`, `<button>`, and `input[type="submit"]` elements are normalized to look identical.
 - `.btn`: Standard gray secondary button.
 - `.btn-primary`: Vibrant green call-to-action.
 - `.btn-error`: Red destructive action.
@@ -124,15 +139,17 @@ Used for live agent logs.
 
 ## 5. Table Management
 - **Action Columns**: Use `text-align: right` and `white-space: nowrap` for the last column.
-- **Shrink-to-Fit**: The last column is set to `width: 1%` to ensure it only takes the space required by buttons.
+- **Shrink-to-Fit**: The last column is set to `width: 1%` by default to ensure it only takes required space.
+- **Flexible Columns**: Use `.w-auto` on a `<td>` to allow it to take the remaining available width.
 - **Actions Utility**: Wrap buttons in `.actions` to manage spacing (`margin-left: 0.5rem`).
 
 ## 6. CSS Utilities
-- `.d-none`: Forceful `display: none`.
-- `.truncate`: Ellipsis for long text in cards.
-- `.muted`: Small, grayed-out text (`#8b949e`).
-- `.grid`: Responsive grid for cards (`auto-fill, minmax(220px, 1fr)`).
-- `.truncate`: Ellipsis for long text in cards.
+- **Display**: `.d-none` (hidden), `.d-block` (block), `.d-inline-block`.
+- **Width**: `.w-full` (100%), `.w-auto` (reset width).
+- **Typography**: `.font-mono` (monospace), `.muted` (gray text), `.small` (smaller text).
+- **Text Flow**: `.truncate` (ellipsis), `.wrap-text` (force line breaks).
+- **Labels**: `.label-block` (full width label for checkboxes), `.label-inline` (inline checkbox labels).
+- **Grid**: Responsive grid for cards (`auto-fill, minmax(220px, 1fr)`).
 
 ---
 
