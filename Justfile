@@ -182,8 +182,8 @@ deploy type="native" path="~/TestState" host="":
  
     echo "[Deploy] Syncing files to $HOST:$REMOTE_PATH..."
     eval "rsync $RSYNC_OPTS --exclude-from='.dockerignore' ./ \"$HOST:$REMOTE_PATH\""
-    echo "[Deploy] Building and starting services ({{type}}) on remote..."
-    $SSH_CMD "$HOST" "cd $REMOTE_PATH && CMS_TARGET=$TARGET docker compose up --build -d --remove-orphans"
+    echo "[Deploy] Stopping existing services and building ({{type}}) on remote..."
+    $SSH_CMD "$HOST" "cd $REMOTE_PATH && docker compose down && CMS_TARGET=$TARGET docker compose up --build -d --remove-orphans"
 
 # Deploy via ZIP bundle (Upload -> Unzip -> Build)
 # Usage: just deploy-zip [type=native|java] [remote_path] [user@host]
@@ -211,8 +211,8 @@ deploy-zip type="native" path="~/TestState" host="": bundle
  
     echo "[Deploy] Uploading bundle $BUNDLE to $HOST..."
     $SCP_CMD "$BUNDLE" "$HOST:$REMOTE_PATH.zip"
-    echo "[Deploy] Extracting and starting ({{type}}) on remote..."
-    $SSH_CMD "$HOST" "mkdir -p $REMOTE_PATH && unzip -o $REMOTE_PATH.zip -d $REMOTE_PATH && cd $REMOTE_PATH && CMS_TARGET=$TARGET docker compose up --build -d --remove-orphans"
+    echo "[Deploy] Extracting and rebuilding ({{type}}) on remote..."
+    $SSH_CMD "$HOST" "mkdir -p $REMOTE_PATH && unzip -o $REMOTE_PATH.zip -d $REMOTE_PATH && cd $REMOTE_PATH && docker compose down && CMS_TARGET=$TARGET docker compose up --build -d --remove-orphans"
 
 # Configure a remote Docker context (Alternative method)
 # Usage: just setup-remote-context <name> <ssh-url>
