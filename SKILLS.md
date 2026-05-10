@@ -153,18 +153,37 @@ Special considerations for agents that use headless browsers (Puppeteer, Seleniu
 - **Shared Memory**: Always set `shm_size: 2gb` in `docker-compose.yml` for services using Chromium to prevent rendering crashes.
 - **System Chromium**: Prefer installing the system `chromium` package via `apt` in the Dockerfile rather than using Puppeteer's internal downloader. Set `PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium`.
 
-### 3. Java Execution Strategy
+### 3. Native Image & Qute Optimization
+TestState CMS is optimized for **GraalVM Native Image** deployment to ensure minimal memory footprint and instant startup.
+
+#### A. "Plain Java" Template Extensions
+To maintain a clean codebase while supporting native builds, we avoid littering data models with `@RegisterForReflection` or `@TemplateData`. Instead, we use **Qute Template Extensions**:
+- **Centralized Logic**: Formatting and complex logic are moved to `TemplateExtensions.java` as static methods.
+- **Reflection-Free**: Extension methods are called directly by Qute, avoiding the need for reflection on entities and DTOs.
+- **Property Mapping**: Use extensions to provide "virtual properties" (e.g., `{session.status.state.displayState}`) to keep templates clean and type-safe.
+
+#### B. Native Reflection Registration
+Only use `@RegisterForReflection` when strictly necessary for 3rd-party libraries that rely on deep reflection:
+- **Jackson Serialization**: Classes sent over WebSockets (`WSMessage`) or REST must be registered so Jackson can see their fields in native mode.
+- **Protobuf Types**: Use `@TemplateData(target = ...)` or Template Extensions to expose Protobuf generated classes to the UI without modifying generated code.
+
+#### C. Unified Multi-Stage Dockerfile
+We use a single `Dockerfile` with multiple targets to manage both JVM and Native builds:
+- **`CMS_TARGET`**: Can be toggled between `native` (using Mandrel/GraalVM) and `jvm` (standard JDK).
+- **Build-Time Memory**: Native builds are memory-intensive. Deployment recipes (`just deploy`) include a `docker compose down` step to free up VPS RAM before starting the native compilation.
+
+### 4. Java Execution Strategy
 Instead of fat JARs (Shading), we use a classpath-based model:
 - **`maven-dependency-plugin`**: Used to export all dependencies to a `lib/` folder.
 - **`maven-jar-plugin`**: Configures the JAR manifest with `addClasspath: true` and `classpathPrefix: lib/`.
 - **Execution**: Run via `java -jar agent.jar`, which automatically finds dependencies in the `lib/` directory.
 
-### 4. Orchestration (`docker-compose.yml`)
+### 5. Orchestration (`docker-compose.yml`)
 - **Central CMS Hub**: The main endpoint for all agents (`http://cms:9000`).
 - **Selenium Grid**: Integrated Hub and Chrome nodes for cross-agent browser automation.
 - **Persistent Storage**: Uses Docker volumes for CMS data persistence.
 
-### 5. Submodule Management & Deployment Bundling
+### 6. Submodule Management & Deployment Bundling
 TestState uses a **Multi-Repo Submodule** architecture. This requires specific care during deployment:
 - **Recursive Cloning**: Always use `git clone --recursive` or `git submodule update --init --recursive` to ensure all agent code is available.
 - **Context Bundling**: Docker builds for submodules are often triggered from the root. Ensure that the submodule directory is correctly mapped in the `Dockerfile` and that the `.dockerignore` doesn't inadvertently exclude submodule source code.
