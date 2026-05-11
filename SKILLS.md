@@ -43,113 +43,106 @@ AI agents must prioritize dynamic state verification (`waitForElementVisible`) o
 Agents must maintain a living `BrowserExecutionPlan` and update it at least once every 3 turns to synchronize the roadmap with the live application state.
 
 ---
-
 ## Frontend Aesthetic: "Genesis-Dark"
-
+ 
+TestState uses a systematic, high-density design system. **Inline styles are strictly forbidden.** All layouts must use the predefined semantic classes in `style.css`.
+ 
 ## 1. Core Aesthetic & Variables
 - **Background**: `#010409` (Primary), `#0d1117` (Surface/Cards)
 - **Accents**: `#58a6ff` (Primary), `#238636` (Success/Action)
 - **Typography**: `-apple-system, BlinkMacSystemFont, "Segoe UI", ...`
-- **Transitions**: `0.2s` all-around for interactive elements.
-
+- **Transitions**: `0.2s` for interactive elements (hover, transform).
+- **Naming**: **No abbreviations.** Use `Description` instead of `Desc`, `Iterations` instead of `Iter`, etc.
+ 
 ## 2. Layout Patterns
-
+ 
 ### Header (Flexbox)
 The global header uses **Flexbox** for responsive alignment. The brand heading is pushed to the left and the navigation to the right using `justify-content: space-between`.
+ 
+### Grids & Data Management
+We avoid legacy `<table>` elements. All data visualization uses CSS Grid.
+ 
+#### A. Data Grid (List Views)
+The `.data-grid` provides a table-like structure using `subgrid`. Headers and rows must span the full width.
 ```html
-<header>
-    <div class="container">
-        <h1>TestState</h1>
-        <nav>...</nav>
+<section class="data-grid tests-grid">
+    <div class="data-grid-header full-column">
+        <div class="data-grid-cell">Column 1</div>
     </div>
-</header>
-```
-
-### Clearfix & Float Areas
-For secondary sections and list items, use a float-based layout with `.title-area` and `.action-area` wrapped in a `.clearfix`.
-```html
-<li class="clearfix">
-    <div class="title-area">
-        <strong>Item Name</strong>
-    </div>
-    <div class="action-area">
-        <span class="status">Active</span>
-    </div>
-</li>
-```
-
-### Statistical Boxes
-Used for high-level system metrics. Should be wrapped in a `<section>` for proper vertical rhythm.
-```html
-<section>
-    <h3>System Overview</h3>
-    <div class="stats-container">
-        <div class="stat-box">
-            <span class="label">Active Sessions</span>
-            <span class="value">5</span>
-        </div>
+    <div class="data-grid-row full-column">
+        <div class="data-grid-cell">Data 1</div>
     </div>
 </section>
 ```
-
+*Note: Always define column widths on the parent `.data-grid` (e.g., `.tests-grid`).*
+ 
+#### B. Card Grid (Dashboard/Overview)
+Use `.card-grid` for responsive article/card layouts. It uses `auto-fill` to manage density.
+```html
+<div class="card-grid">
+    <article>...</article>
+</div>
+```
+ 
+### Statistical Overviews
+Used for high-level metrics. `.stats-container` uses a flexible layout where boxes grow to fill the row.
+```html
+<div class="stats-container">
+    <div class="stat-box">
+        <span class="label">Total</span>
+        <span class="value">100</span>
+    </div>
+</div>
+```
+ 
 ## 3. Form Standards
 Forms must be semantic and data-driven. **Never use `<p>` tags for wrapping fields.**
-
+ 
 ### Fieldset & Legend
-Group related inputs using fieldsets for better accessibility and hierarchy.
+Group related inputs using fieldsets.
 ```html
 <fieldset>
-    <legend>Metadata</legend>
+    <legend>Settings</legend>
     <div class="field">
-        <label>Name</label>
-        <input type="text" name="name">
+        <label>Iterations</label>
+        <input type="number" name="iterations" class="input-small">
     </div>
 </fieldset>
 ```
-
-### Display Modes
-- **Standard**: For small forms or inline usage.
-- **Editor Forms**: Use `.full-width-form` to expand the form and its fieldsets to 100% width.
-
+ 
+### Form Utilities
+- `.full-width-form`: Expands fieldsets to 100% width.
+- `.form-actions`: Flex-end container for primary buttons.
+- `.input-small`: Constrains input width for numeric/short fields.
+- `.input-readonly`: Styled for non-editable background (`var(--surface)`).
+ 
 ## 4. Component Standards
-
+ 
 ### Status Badges
-Consistent, color-coded badges for real-time tracking using `.status` or `.status-badge`:
+Consistent, color-coded badges:
 - `.status-completed`: Success/Green (`#3fb950`)
 - `.status-running`: Active/Blue (`#58a6ff`)
-- `.status-pending` / `.status-waiting`: Warning/Yellow (`#d29922`)
+- `.status-pending`: Warning/Yellow (`#d29922`)
 - `.status-failed`: Error/Red (`#f85149`)
-
-### Recommendation Badges
-Dynamic badges used in editors to indicate payload requirements (`REQUIRED`, `RECOMMENDED`). These are typically placed in the `.action-area` of a list item.
-
+ 
 ### Buttons
-- **Normalization**: All `<a>`, `<button>`, and `input[type="submit"]` elements are normalized to look identical.
-- `.btn`: Standard gray secondary button.
+- `.btn`: Standard gray secondary.
 - `.btn-primary`: Vibrant green call-to-action.
-- `.btn-error`: Red destructive action.
-- `.btn.small`: Compact version for dense tables.
-
-### Telemetry Console
-Used for live agent logs.
-```html
-<pre class="console" id="telemetry-console"></pre>
-```
-*Utilities: `.console` provides a fixed-height scrollable window with monospace font.*
-
-## 5. Table Management
-- **Action Columns**: Use `text-align: right` and `white-space: nowrap` for the last column.
-- **Shrink-to-Fit**: The last column is set to `width: 1%` by default to ensure it only takes required space.
-- **Flexible Columns**: Use `.w-auto` on a `<td>` to allow it to take the remaining available width.
-- **Actions Utility**: Wrap buttons in `.actions` to manage spacing (`margin-left: 0.5rem`).
-
-## 6. CSS Utilities
-- **Display**: `.d-none` (hidden), `.d-block` (block), `.d-inline-block`.
-- **Width**: `.w-full` (100%), `.w-auto` (reset width).
-- **Typography**: `.font-mono` (monospace), `.muted` (gray text), `.small` (smaller text).
-- **Text Flow**: `.truncate` (ellipsis), `.wrap-text` (force line breaks).
-- **Labels**: `.label-block` (full width label for checkboxes), `.label-inline` (inline checkbox labels).
-- **Grid**: Responsive grid for cards (`auto-fill, minmax(220px, 1fr)`).
+- `.btn-error`: Red destructive/stop action.
+- `.btn.small`: Compact version for dense data grids.
+ 
+### Telemetry & Console
+- `.console`: Fixed-height, monospace, black background scrollable log.
+- `.metadata-pre`: For raw JSON/Metadata; transparent, no padding, pre-wrap.
+- `.status-message`: Global overflow handling (`overflow-wrap: anywhere`).
+ 
+## 5. CSS Utilities
+- **Flex**: `.flex`, `.flex-between`, `.flex-column`, `.align-end`.
+- **Text**: `.muted`, `.small`, `.font-mono`, `.truncate`, `.text-right`.
+- **Colors**: `.text-success`, `.text-error`, `.text-accent`.
+- **Spacing**: `.mb-1` to `.mb-4`, `.mt-1`, `.ml-1`.
+- **Grid Utility**: `.full-column` (`grid-column: 1 / -1`).
+- **Visibility**: `.d-none`, `.d-block`, `.d-contents`.
 
 ---
 
