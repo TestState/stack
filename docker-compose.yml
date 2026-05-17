@@ -23,6 +23,7 @@ services:
       - HUB_URL=http://cms:9000
       - CLIENT_NAME=SideAgent-Docker
       - SELENIUM_REMOTE_URL=http://selenium-hub:4444/wd/hub
+      - DBUS_SESSION_BUS_ADDRESS=/dev/null
     depends_on:
       - cms
       - selenium-hub
@@ -36,7 +37,9 @@ services:
     environment:
       - HUB_URL=http://cms:9000
       - CLIENT_NAME=PuppeteerAgent-Docker
+      - DBUS_SESSION_BUS_ADDRESS=/dev/null
     shm_size: 2gb
+    ipc: host
     cap_add:
       - SYS_ADMIN
     depends_on:
