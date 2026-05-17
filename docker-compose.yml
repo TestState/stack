@@ -63,7 +63,7 @@ services:
 
   # Selenium Grid for SideAgent with Auto-Scaling (Dynamic Grid)
   selenium-hub:
-    image: selenium/standalone-docker:latest
+    image: selenium/standalone-docker:4.43.0
     container_name: selenium-hub
     ports:
       - "4444:4444"
@@ -79,7 +79,7 @@ services:
       - SE_DOCKER_NODE_SHM_SIZE=2gb
       - SE_ASSETS_PATH=/opt/selenium/assets
       - SE_DOCKER_NODE_ASSETS_PATH=/opt/selenium/assets
-      - SE_NODES_CONFIG_JSON={"capabilities":[{"browserName":"chrome","maxInstances":5,"image":"selenium/node-chrome:latest"},{"browserName":"firefox","maxInstances":5,"image":"selenium/node-firefox:latest"}]}
+      - SE_NODES_CONFIG_JSON={"capabilities":[{"browserName":"chrome","maxInstances":5,"image":"selenium/node-chrome:4.43.0"},{"browserName":"firefox","maxInstances":5,"image":"selenium/node-firefox:4.43.0"}]}
     networks:
       - teststate
 
