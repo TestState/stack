@@ -42,6 +42,16 @@ AI agents must prioritize dynamic state verification (`waitForElementVisible`) o
 ### 4. Continuous Planning
 Agents must maintain a living `BrowserExecutionPlan` and update it at least once every 3 turns to synchronize the roadmap with the live application state.
 
+### 5. Mandatory Validation Tool & Self-Correction
+AI translation agents must not return raw text/unverified JSON files directly. They must invoke a mandatory validation and submission tool (`submitTranslation`).
+- **Semantic Validation**: The submission tool parses the JSON and runs deep semantic and structural checks (validating URLs, nested selector arrays, and step parameters).
+- **Self-Correction Loop**: If validation fails, the tool returns the exact compiler/assertion exception details. The agent is strictly commanded to capture the error, fix the payload, and resubmit recursively until a successful verification response is received.
+
+### 6. Selector Standards & Strategy Restrictions
+To ensure zero execution mismatch during playback:
+- **No Selenium Prefixes in Puppeteer**: Chrome DevTools Recorder/Puppeteer agents are strictly forbidden from using Selenium-style selector strategy prefixes (like `id=`, `name=`, `css=`, `xpath=`, or `linkText=`) under any circumstances (neither in interactive tool calls nor in the final submitted JSON). Standard CSS selectors must be used directly without strategy prefixes (e.g. `#username`, `.btn`).
+- **Selector Execution Adapter**: Interactive browser tools must implement a dynamic selector adapter (e.g., `toPlaywrightSelector`) that maps pure Chrome DevTools Recorder selectors into native Playwright targets (translating `xpath/path` -> `xpath=path` and `aria/label` -> `text=label`) during session playback.
+
 ---
 ## Frontend Aesthetic: "Genesis-Dark"
  
