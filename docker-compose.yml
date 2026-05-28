@@ -62,25 +62,46 @@ services:
     networks:
       - teststate
 
-  # Selenium Grid for SideAgent with Auto-Scaling (Dynamic Grid)
+  # Selenium Grid for SideAgent (Hub and Nodes)
   selenium-hub:
-    image: selenium/standalone-docker:4.43.0
+    image: selenium/hub:4.43.0
     container_name: selenium-hub
     ports:
+      - "4442:4442"
+      - "4443:4443"
       - "4444:4444"
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - selenium_assets:/opt/selenium/assets
+    networks:
+      - teststate
+
+  selenium-chrome:
+    image: selenium/node-chrome:4.43.0
+    shm_size: 2gb
+    depends_on:
+      - selenium-hub
     environment:
-      - SE_DYNAMIC_GRID_ENABLED=true
-      - SE_NODE_GRID_URL=http://selenium-hub:4444
-      - SE_DRAIN_AFTER_SESSION_COUNT=0
-      - SE_NODE_SESSION_TIMEOUT=300
-      - SE_DOCKER_NETWORK_NAME=teststate
-      - SE_DOCKER_NODE_SHM_SIZE=2gb
-      - SE_ASSETS_PATH=/opt/selenium/assets
-      - SE_DOCKER_NODE_ASSETS_PATH=/opt/selenium/assets
-      - SE_NODES_CONFIG_JSON={"capabilities":[{"browserName":"chrome","maxInstances":5,"image":"selenium/node-chrome:4.43.0"},{"browserName":"firefox","maxInstances":5,"image":"selenium/node-firefox:4.43.0"}]}
+      - SE_EVENT_BUS_HOST=selenium-hub
+      - SE_EVENT_BUS_PUBLISH_PORT=4442
+      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
+      - SE_NODE_MAX_SESSIONS=5
+      - SE_NODE_OVERRIDE_MAX_SESSIONS=true
+    volumes:
+      - selenium_assets:/opt/selenium/assets
+    networks:
+      - teststate
+
+  selenium-firefox:
+    image: selenium/node-firefox:4.43.0
+    shm_size: 2gb
+    depends_on:
+      - selenium-hub
+    environment:
+      - SE_EVENT_BUS_HOST=selenium-hub
+      - SE_EVENT_BUS_PUBLISH_PORT=4442
+      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
+      - SE_NODE_MAX_SESSIONS=5
+      - SE_NODE_OVERRIDE_MAX_SESSIONS=true
+    volumes:
+      - selenium_assets:/opt/selenium/assets
     networks:
       - teststate
 
