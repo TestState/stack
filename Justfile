@@ -212,7 +212,7 @@ deploy-zip type="native" path="~/TestState" host="": bundle
     echo "[Deploy] Uploading bundle $BUNDLE to $HOST..."
     $SCP_CMD "$BUNDLE" "$HOST:$REMOTE_PATH.zip"
     echo "[Deploy] Extracting and rebuilding ({{type}}) on remote..."
-    $SSH_CMD "$HOST" "mkdir -p $REMOTE_PATH && unzip -o $REMOTE_PATH.zip -d $REMOTE_PATH && cd $REMOTE_PATH && docker compose down && CMS_TARGET=$TARGET docker compose up --build -d --remove-orphans"
+    $SSH_CMD "$HOST" "if [ -d $REMOTE_PATH ]; then (cd $REMOTE_PATH && docker compose down); fi && rm -rf $REMOTE_PATH && mkdir -p $REMOTE_PATH && unzip -o $REMOTE_PATH.zip -d $REMOTE_PATH && cd $REMOTE_PATH && CMS_TARGET=$TARGET docker compose up --build -d --remove-orphans"
 
 # Configure a remote Docker context (Alternative method)
 # Usage: just setup-remote-context <name> <ssh-url>
