@@ -53,106 +53,43 @@ To ensure zero execution mismatch during playback:
 - **Selector Execution Adapter**: Interactive browser tools must implement a dynamic selector adapter (e.g., `toPlaywrightSelector`) that maps pure Chrome DevTools Recorder selectors into native Playwright targets (translating `xpath/path` -> `xpath=path` and `aria/label` -> `text=label`) during session playback.
 
 ---
-## Frontend Aesthetic: "Genesis-Dark"
+
+## Frontend Aesthetic: "Genesis-Dark" via Mantine v7
  
-TestState uses a systematic, high-density design system. **Inline styles are strictly forbidden.** All layouts must use the predefined semantic classes in `style.css`.
+TestState uses a systematic, high-density dark theme built on **Mantine v7**. Direct inline styling and custom utility CSS classes are deprecated; developers should use Mantine's built-in props and semantic components to preserve layout spacing and visual hierarchy.
  
-## 1. Core Aesthetic & Variables
-- **Background**: `#010409` (Primary), `#0d1117` (Surface/Cards)
-- **Accents**: `#58a6ff` (Primary), `#238636` (Success/Action)
-- **Typography**: `-apple-system, BlinkMacSystemFont, "Segoe UI", ...`
-- **Transitions**: `0.2s` for interactive elements (hover, transform).
-- **Naming**: **No abbreviations.** Use `Description` instead of `Desc`, `Iterations` instead of `Iter`, etc.
- 
-## 2. Layout Patterns
- 
-### Header (Flexbox)
-The global header uses **Flexbox** for responsive alignment. The brand heading is pushed to the left and the navigation to the right using `justify-content: space-between`.
- 
-### Grids & Data Management
-We avoid legacy `<table>` elements. All data visualization uses CSS Grid.
- 
-#### A. Data Grid (List Views)
-The `.data-grid` provides a table-like structure using `subgrid`. Headers and rows must span the full width.
-```html
-<section class="data-grid tests-grid">
-    <div class="data-grid-header full-column">
-        <div class="data-grid-cell">Column 1</div>
-    </div>
-    <div class="data-grid-row full-column">
-        <div class="data-grid-cell">Data 1</div>
-    </div>
-</section>
+## 1. Design System & Components
+Layouts must follow these Mantine structural guidelines:
+
+- **Spacing & Layouts**: Use `<Stack>` (vertical) and `<Group>` (horizontal) components with default gaps to maintain consistent spacing. Avoid custom margins or paddings.
+- **Grids**: Use `<SimpleGrid>` with responsive `cols` property for dashboard widgets, stats lists, and card grids.
+- **Naming**: **No abbreviations.** Prop and field names must be fully descriptive: use `description` instead of `desc`, `iterations` instead of `iter`, etc.
+
+## 2. Formatting Utilities & Status Badges
+To keep UI elements consistent, formatting logic is centralized in [format.js](file:///home/hsgamer/Projects/TestState/implementation/server/teststate-cms/src/main/webui/src/utils/format.js).
+
+### A. Status Badges
+Always use the centralized helpers to style and display execution states:
+```javascript
+import { getStatusColor, getCleanStatus } from '../utils/format';
+
+<Badge color={getStatusColor(status)} variant="filled">
+  {getCleanStatus(status)}
+</Badge>
 ```
-*Note: Always define column widths on the parent `.data-grid` (e.g., `.tests-grid`).*
- 
-#### B. Card Grid (Dashboard/Overview)
-Use `.card-grid` for responsive article/card layouts. It uses `auto-fill` to manage density.
-```html
-<div class="card-grid">
-    <article>...</article>
-</div>
+- **`getCleanStatus`**: Removes verbose gRPC prefixes (`TEST_STATE_`, `STEP_STATUS_`, `TRANSLATION_STATE_`) for user-friendly badge labels.
+- **`getStatusColor`**: Standardizes colors dynamically (`green` for success/completion, `red` for failure/error, `blue` for running/pending/negotiation, `gray` for unknown/unspecified).
+
+### B. Display Duration
+All duration values (seconds string with `"s"` suffix or numeric milliseconds) must be formatted using the centralized helper:
+```javascript
+import { getDisplayDuration } from '../utils/format';
+
+<Text>{getDisplayDuration(duration)}</Text> // Renders consistently in milliseconds (e.g., "150ms")
 ```
- 
-### Statistical Overviews
-Used for high-level metrics. `.stats-container` uses a flexible layout where boxes grow to fill the row.
-```html
-<div class="stats-container">
-    <div class="stat-box">
-        <span class="label">Total</span>
-        <span class="value">100</span>
-    </div>
-</div>
-```
- 
+
 ## 3. Form Standards
-Forms must be semantic and data-driven. **Never use `<p>` tags for wrapping fields.**
- 
-### Fieldset & Legend
-Group related inputs using fieldsets.
-```html
-<fieldset>
-    <legend>Settings</legend>
-    <div class="field">
-        <label>Iterations</label>
-        <input type="number" name="iterations" class="input-small">
-    </div>
-</fieldset>
-```
- 
-### Form Utilities
-- `.full-width-form`: Expands fieldsets to 100% width.
-- `.form-actions`: Flex-end container for primary buttons.
-- `.input-small`: Constrains input width for numeric/short fields.
-- `.input-readonly`: Styled for non-editable background (`var(--surface)`).
- 
-## 4. Component Standards
- 
-### Status Badges
-Consistent, color-coded badges:
-- `.status-completed`: Success/Green (`#3fb950`)
-- `.status-running`: Active/Blue (`#58a6ff`)
-- `.status-pending`: Warning/Yellow (`#d29922`)
-- `.status-failed`: Error/Red (`#f85149`)
- 
-### Buttons
-- `.btn`: Standard gray secondary.
-- `.btn-primary`: Vibrant green call-to-action.
-- `.btn-error`: Red destructive/stop action.
-- `.btn.small`: Compact version for dense data grids.
- 
-### Telemetry & Console
-- `.console`: Fixed-height, monospace, black background scrollable log.
-- `.metadata-pre`: For raw JSON/Metadata; transparent, no padding, pre-wrap.
-- `.status-message`: Global overflow handling (`overflow-wrap: anywhere`).
- 
-## 5. CSS Utilities
-- **Flex**: `.flex`, `.flex-between`, `.flex-column`, `.align-end`.
-- **Text**: `.muted`, `.small`, `.font-mono`, `.truncate`, `.text-right`.
-- **Colors**: `.text-success`, `.text-error`, `.text-accent`.
-- **Spacing**: `.mb-1` to `.mb-4`, `.mt-1`, `.ml-1`.
-- **Grid Utility**: `.full-column` (`grid-column: 1 / -1`).
-- **Visibility**: `.d-none`, `.d-block`, `.d-contents`.
+Forms must utilize Mantine input fields (e.g., `<TextInput>`, `<NumberInput>`, `<Textarea>`) arranged within a `<Stack>`. Group primary buttons using a right-aligned `<Group>` component.
 
 ---
 
