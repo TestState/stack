@@ -40,6 +40,7 @@ services:
       - DBUS_SESSION_BUS_ADDRESS=/dev/null
       - MAX_CONCURRENT_BROWSERS=5
     shm_size: 2gb
+    restart: unless-stopped
     cap_add:
       - SYS_ADMIN
     depends_on:
